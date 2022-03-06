@@ -238,27 +238,62 @@ def run_test_harness(layer_number:int=1,
 
 LAYER_NUMBER = [1, 2, 3]
 NUMBERS_OF_NEURON = [32, 64, 128]
-DROPOUT_VALUE = [0.2]
-DROPOUT_ENEABLE = [False, True]
+
 OPTIMIZER = ["SGD", "SGD_MOMENTUM", "ADAM"]
 LEARNING_RATE = [0.001]
+BETA_1 = [0.9]
+BETA_2 = [0.999]
+MOMENTUM = [0.9]
+
+DATA_AUGMENTATION_ENEABLE_SWITCH = [False, True]
+FIT_MODEL_EPOCH = [5, 50, 100]
+FIT_MODEL_BATCH_SIZE = [64]
+
+DROPOUT_ENEABLE = [False, True]
+DROPOUT_VALUE = [0.2, 0.5, 0.8 ]
 
 
 
+def detonate():
+    for layer_number in LAYER_NUMBER:
+            for numbers_of_neuron in NUMBERS_OF_NEURON:
+                for optimizer in OPTIMIZER:
+                    for learnin_rate in LEARNING_RATE:
+                        for beta_1 in BETA_1:
+                            for beta_2 in BETA_2:
+                                for momentum in MOMENTUM:
+                                    for data_augmentation_eneable_switch in DATA_AUGMENTATION_ENEABLE_SWITCH:
+                                        for fit_model_epoch in FIT_MODEL_EPOCH:
+                                            for fit_model_batch_size in FIT_MODEL_BATCH_SIZE:
+                                                for dropout_eneable in DROPOUT_ENEABLE:
+                                                    for dropout_value in DROPOUT_VALUE:
+
+                                                        run_test_harness(layer_number=layer_number,
+                                                                numers_of_neuron=numbers_of_neuron,
+                                                                dropout_value=dropout_value,
+                                                                dropout_eneable=dropout_eneable,
+                                                                optimizer=optimizer,
+                                                                learning_rate=learnin_rate,
+                                                                beta_1=beta_1,
+                                                                beta_2=beta_2,
+                                                                momentum=momentum,
+                                                                fit_model_epoch=fit_model_epoch,
+                                                                fit_model_batch_size=fit_model_batch_size,
+                                                                data_augmentation_eneable_switch=data_augmentation_eneable_switch)
 
 
 
 # entry point, run the test harness
-print("cifar10")
-run_test_harness(layer_number=1,
-                 numers_of_neuron=128,
-                 dropout_value=0.2,
-                 dropout_eneable=False,
-                 optimizer="SGD_MOMENTUM",
-                 learning_rate=0.001,
-                 beta_1=0.9,
-                 beta_2=0.999,
-                 momentum=0.9,
-                 fit_model_epoch=5,
-                 fit_model_batch_size=64,
-                 data_augmentation_eneable_switch=False)
+# print("cifar10")
+# run_test_harness(layer_number=1,
+#                  numers_of_neuron=128,
+#                  dropout_value=0.2,
+#                  dropout_eneable=False,
+#                  optimizer="SGD_MOMENTUM",
+#                  learning_rate=0.001,
+#                  beta_1=0.9,
+#                  beta_2=0.999,
+#                  momentum=0.9,
+#                  fit_model_epoch=5,
+#                  fit_model_batch_size=64,
+#                  data_augmentation_eneable_switch=False)
