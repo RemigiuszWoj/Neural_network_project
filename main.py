@@ -1,6 +1,11 @@
 # test harness for evaluating models on the cifar10 dataset
 import sys
 from matplotlib import pyplot
+
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -82,10 +87,10 @@ def run_test_harness():
 	model = define_model()
 	# fit model
 	print("3")
-	history = model.fit(trainX, trainY, epochs=10, batch_size=6, validation_data=(testX, testY), verbose=0)
+	history = model.fit(trainX, trainY, epochs=5, batch_size=64, validation_data=(testX, testY))
 	# evaluate model
 	print("4")
-	_, acc = model.evaluate(testX, testY, verbose=0)
+	_, acc = model.evaluate(testX, testY,)
 	print('> %.3f' % (acc * 100.0))
 	# learning curves
 	summarize_diagnostics(history)
