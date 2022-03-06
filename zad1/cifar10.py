@@ -1,6 +1,8 @@
 from ast import Pass
+from cProfile import run
 from re import M
 import sys
+from typing import Counter
 from matplotlib import pyplot
 import os
 import ssl
@@ -15,6 +17,7 @@ from keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD, Adam
 from keras.layers import Dropout
 from keras.preprocessing.image import ImageDataGenerator
+# from sklern.metrics import  
 
 
 LAYER_NUMBER = [1, 2, 3]
@@ -32,6 +35,11 @@ FIT_MODEL_BATCH_SIZE = [64]
 
 DROPOUT_ENEABLE = [False, True]
 DROPOUT_VALUE = [0.2, 0.5, 0.8 ]
+
+DATA_NAME = ["cifar10"]
+
+RUN = [1, 2, 3]
+COUNTER = [0]
 
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -138,9 +146,6 @@ def define_model(layer_number:int=1,
                              numers_of_neuron=numers_of_neuron,
                              dropout_value=dropout_value,
                              dropout_eneable=dropout_eneable)
-    # model.add(Dense(10, activation='softmax'))
-    # compile model
-    # # opt = SGD(learning_rate=0.001, momentum=0.9)
     opt = select_optimizer(optimizer=optimizer, learning_rate=learning_rate, beta_1=beta_1, beta_2=beta_2, momentum=momentum)
     
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
@@ -151,10 +156,6 @@ def define_model(layer_number:int=1,
 # define cnn model
 def define_model_old(neuron:int):
     model = Sequential()
-    # if neuron == 1:
-    #     model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
-    #     model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-    #     model.add(MaxPooling2D((2, 2)))
     if neuron == 1:
         pass
     model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
@@ -170,7 +171,7 @@ def define_model_old(neuron:int):
 
 
 # plot diagnostic learning curves
-def summarize_diagnostics(history):
+def summarize_diagnostics(history, counter:int=0 , data_name:str = "cifar10", run:int=0):
     # plot loss
     pyplot.subplot(211)
     pyplot.title('Cross Entropy Loss')
@@ -182,7 +183,11 @@ def summarize_diagnostics(history):
     pyplot.plot(history.history['accuracy'], color='blue', label='train')
     pyplot.plot(history.history['val_accuracy'], color='orange', label='test')
     # save plot to file
-    filename = sys.argv[0].split('/')[-1]
+    # filename = sys.argv[0].split('/')[-1]
+    # filename ="cifar10" + os.sep + "plot" + os.sep + data_name + "_" + str(counter)
+    filename =data_name + os.sep + str(run) + os.sep + "plot" + os.sep + data_name + "_" + str(counter)
+
+
     pyplot.savefig(filename + '_plot.png')
     pyplot.close()
 
@@ -206,6 +211,46 @@ def data_augmentation_eneable(model, trainX, trainY, testX, testY,
         history = model.fit(trainX, trainY, epochs=fit_model_epoch, batch_size=fit_model_batch_size, validation_data=(testX, testY))
     return history
 
+
+def create_log(layer_number:int=1,
+               numers_of_neuron:int=128,
+               dropout_value:float=0.2,
+               dropout_eneable:bool=False,
+               optimizer:str = "SGD_MOMENTUM",
+               learning_rate:float=0.001,
+               beta_1:float = 0.9,
+               beta_2:float=0.999,
+               momentum:float=0.9,
+               fit_model_epoch:int=5,
+               fit_model_batch_size:int=64,
+               data_augmentation_eneable_switch:bool=False,
+               counter:int = 0,
+               accuracy:float = 0.0,
+               data_name:str = "cifar10",
+               run:int=0,
+               ):
+    my_data_file = open(data_name + os.sep + str(run) + os.sep + "data_log" + os.sep + data_name + "_" + str(counter) + ".txt","w+")
+    my_data_file.write("layer_number:" + str(layer_number) + "\n")
+    my_data_file.write("numers_of_neuron:" + str(numers_of_neuron) + "\n")
+    my_data_file.write("dropout_value:" + str(dropout_value) + "\n")
+    my_data_file.write("dropout_eneable:" + str(dropout_eneable) + "\n")
+    my_data_file.write("optimizer:" + str(optimizer) + "\n")
+    my_data_file.write("learning_rate:" + str(learning_rate) + "\n")
+    my_data_file.write("beta_1:" + str(beta_1) + "\n")
+    my_data_file.write("beta_2:" + str(beta_2) + "\n")
+    my_data_file.write("momentum:" + str(momentum) + "\n")
+    my_data_file.write("fit_model_epoch:" + str(fit_model_epoch) + "\n")
+    my_data_file.write("fit_model_batch_size:" + str(fit_model_batch_size) + "\n")
+    my_data_file.write("data_augmentation_eneable_switch:" + str(data_augmentation_eneable_switch) + "\n")
+    my_data_file.write("accuracy:" + str(accuracy) + "\n")
+    my_data_file.write("data_name:" + str(data_name) + "\n")
+    my_data_file.write("run:" + str(run) + "\n")
+    my_data_file.write("counter:" + str(counter) + "\n")
+
+    my_data_file.close()
+    
+
+
 # run the test harness for evaluating a model
 def run_test_harness(layer_number:int=1,
                      numers_of_neuron:int=128,
@@ -216,9 +261,12 @@ def run_test_harness(layer_number:int=1,
                      beta_1:float = 0.9,
                      beta_2:float=0.999,
                      momentum:float=0.9,
-                     fit_model_epoch:int=5,
+                     fit_model_epoch:int=100,
                      fit_model_batch_size:int=64,
-                     data_augmentation_eneable_switch:bool=False
+                     data_augmentation_eneable_switch:bool=False,
+                     counter:int = 0,
+                     run:int = 0,
+                     data_name = DATA_NAME[0]
                      ):
     # load dataset
     trainX, trainY, testX, testY = load_dataset()
@@ -241,57 +289,176 @@ def run_test_harness(layer_number:int=1,
                                         eneable=data_augmentation_eneable_switch)
     # evaluate model
     _, acc = model.evaluate(testX, testY,)
-    print('> %.3f' % (acc * 100.0))
+    # print('> %.3f' % (acc * 100.0))
+    # create confiusion matrix
+    matrix = confusion_matrix(testY, testX)
+    print(matrix)
+
+    create_log(layer_number=layer_number,
+               numers_of_neuron=numers_of_neuron,
+               dropout_value=dropout_value,
+               dropout_eneable=dropout_eneable,
+               optimizer=optimizer,
+               learning_rate=learning_rate,
+               beta_1=beta_1,
+               beta_2=beta_2,
+               momentum=momentum,
+               fit_model_epoch=fit_model_epoch,
+               fit_model_batch_size=fit_model_batch_size,
+               data_augmentation_eneable_switch=data_augmentation_eneable_switch,
+               counter=counter,
+               accuracy=acc,
+               data_name=data_name,
+               run=run
+              )
     # learning curves
-    summarize_diagnostics(history)
+    summarize_diagnostics(history, counter=counter, data_name=data_name, run=run)
+
 
 
 def detonate():
-    for layer_number in LAYER_NUMBER:
-            for numbers_of_neuron in NUMBERS_OF_NEURON:
-                for optimizer in OPTIMIZER:
-                    for learnin_rate in LEARNING_RATE:
-                        for beta_1 in BETA_1:
-                            for beta_2 in BETA_2:
-                                for momentum in MOMENTUM:
-                                    for data_augmentation_eneable_switch in DATA_AUGMENTATION_ENEABLE_SWITCH:
-                                        for fit_model_epoch in FIT_MODEL_EPOCH:
-                                            for fit_model_batch_size in FIT_MODEL_BATCH_SIZE:
-                                                for dropout_eneable in DROPOUT_ENEABLE:
-                                                    for dropout_value in DROPOUT_VALUE:
+    for run in RUN:
+        counter = 0
+        data_name = DATA_NAME[0]
+        for layer_number in LAYER_NUMBER:
+                for numbers_of_neuron in NUMBERS_OF_NEURON:
+                    for optimizer in OPTIMIZER:
+                        for learnin_rate in LEARNING_RATE:
+                            for beta_1 in BETA_1:
+                                for beta_2 in BETA_2:
+                                    for momentum in MOMENTUM:
+                                        for data_augmentation_eneable_switch in DATA_AUGMENTATION_ENEABLE_SWITCH:
+                                            for fit_model_epoch in FIT_MODEL_EPOCH:
+                                                for fit_model_batch_size in FIT_MODEL_BATCH_SIZE:
+                                                    for dropout_eneable in DROPOUT_ENEABLE:
+                                                        for dropout_value in DROPOUT_VALUE:
 
-                                                        run_test_harness(layer_number=layer_number,
-                                                                numers_of_neuron=numbers_of_neuron,
-                                                                dropout_value=dropout_value,
-                                                                dropout_eneable=dropout_eneable,
-                                                                optimizer=optimizer,
-                                                                learning_rate=learnin_rate,
-                                                                beta_1=beta_1,
-                                                                beta_2=beta_2,
-                                                                momentum=momentum,
-                                                                fit_model_epoch=fit_model_epoch,
-                                                                fit_model_batch_size=fit_model_batch_size,
-                                                                data_augmentation_eneable_switch=data_augmentation_eneable_switch)
+                                                            counter = counter + 1
+                                                            run_test_harness(layer_number=layer_number,
+                                                                    numers_of_neuron=numbers_of_neuron,
+                                                                    dropout_value=dropout_value,
+                                                                    dropout_eneable=dropout_eneable,
+                                                                    optimizer=optimizer,
+                                                                    learning_rate=learnin_rate,
+                                                                    beta_1=beta_1,
+                                                                    beta_2=beta_2,
+                                                                    momentum=momentum,
+                                                                    fit_model_epoch=fit_model_epoch,
+                                                                    fit_model_batch_size=fit_model_batch_size,
+                                                                    data_augmentation_eneable_switch=data_augmentation_eneable_switch,
+                                                                    counter = counter,
+                                                                    run=run,
+                                                                    data_name=data_name
+                                                                    )
+
+                                                        
+def zad1_a(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    """
+    layer_numer
+    numbers_of_neuron
+    """
+
+    for run in RUN:
+        for layer_number in LAYER_NUMBER:
+            for numers_of_neuron in NUMBERS_OF_NEURON:
+                counter = counter + 1
+                run_test_harness(layer_number=layer_number,
+                                 numers_of_neuron=numers_of_neuron,
+                                 run=run,
+                                 fit_model_epoch=fit_model_epoch,
+                                 data_name=data_name,
+                                 counter=counter
+                                )
+
+
+def zad1_b(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    """
+    dropout
+    """
+
+    for run in RUN:
+        for dropout_eneable in DROPOUT_ENEABLE:
+            for dropout_value in DROPOUT_VALUE:
+                counter = counter + 1
+                run_test_harness(dropout_value=dropout_value,
+                                 dropout_eneable=dropout_eneable,
+                                 run=run,
+                                 data_name=data_name,
+                                 fit_model_epoch=fit_model_epoch,
+                                 counter=counter,
+                                 )
+
+
+
+def zad1_c(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    """
+    dropout
+    """
+
+    for run in RUN:
+        for data_augmentation_eneable_switch in DATA_AUGMENTATION_ENEABLE_SWITCH:
+            counter = counter + 1
+            run_test_harness(data_augmentation_eneable_switch=data_augmentation_eneable_switch,
+                             run=run,
+                             data_name=data_name,
+                             fit_model_epoch=fit_model_epoch,
+                             counter=counter,
+                            )
+
+
+def zad1_d(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    """
+    optimizer
+    """
+
+    for run in RUN:
+        for optimizer in OPTIMIZER:
+            counter = counter + 1
+            run_test_harness(optimizer=optimizer,
+                             run=run,
+                             data_name=data_name,
+                             fit_model_epoch=fit_model_epoch,
+                             counter=counter,
+                            )
+
+
+def zad1_reference(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    """
+    reference
+    """
+
+    for run in RUN:
+        counter = counter + 1
+        run_test_harness(run=run,
+                         data_name=data_name,
+                         fit_model_epoch=fit_model_epoch,
+                         counter=counter,
+                        )
+
+
+def zad1_test_run(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    """
+    test
+    """
+    counter = counter + 1
+    run_test_harness(data_name=data_name,
+                     fit_model_epoch=fit_model_epoch,
+                     counter=counter,
+                    )
+
+
+def zad1_all(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
+    zad1_a(counter=counter,fit_model_epoch=fit_model_epoch,data_name=data_name)
+    zad1_b(counter=counter,fit_model_epoch=fit_model_epoch,data_name=data_name)
+    zad1_c(counter=counter,fit_model_epoch=fit_model_epoch,data_name=data_name)
+    zad1_d(counter=counter,fit_model_epoch=fit_model_epoch,data_name=data_name)
+    zad1_reference(counter=counter,fit_model_epoch=fit_model_epoch,data_name=data_name)
 
 
 # TO DO
-# zapisywanie wynikiow
-# automatyzacja
-# tablica pomylek + dokładność
-# rozmiar sieci(liczba warst + neurony), dropout + wspolczynnik, augmentacja, metody SGD, SGD z momentem ADAM
-
+# tablica pomylek 
 
 # entry point, run the test harness
-# print("cifar10")
-# run_test_harness(layer_number=1,
-#                  numers_of_neuron=128,
-#                  dropout_value=0.2,
-#                  dropout_eneable=False,
-#                  optimizer="SGD_MOMENTUM",
-#                  learning_rate=0.001,
-#                  beta_1=0.9,
-#                  beta_2=0.999,
-#                  momentum=0.9,
-#                  fit_model_epoch=5,
-#                  fit_model_batch_size=64,
-#                  data_augmentation_eneable_switch=False)
+print(DATA_NAME[0])
+# zad1_all(counter=COUNTER[0],fit_model_epoch=1,data_name=DATA_NAME[0])
+zad1_test_run(fit_model_epoch=1)
