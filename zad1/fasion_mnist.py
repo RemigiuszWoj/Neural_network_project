@@ -1,0 +1,1 @@
+print("fasion_mnist")
