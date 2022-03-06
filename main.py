@@ -13,6 +13,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
 
+
 # load train and test dataset
 def load_dataset():
 	# load dataset
@@ -21,6 +22,7 @@ def load_dataset():
 	trainY = to_categorical(trainY)
 	testY = to_categorical(testY)
 	return trainX, trainY, testX, testY
+
 
 # scale pixels
 def prep_pixels(train, test):
@@ -32,6 +34,7 @@ def prep_pixels(train, test):
 	test_norm = test_norm / 255.0
 	# return normalized images
 	return train_norm, test_norm
+
 
 # define cnn model
 def define_model():
@@ -46,6 +49,7 @@ def define_model():
 	opt = SGD(learning_rate=0.001, momentum=0.9)
 	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 	return model
+
 
 # plot diagnostic learning curves
 def summarize_diagnostics(history):
@@ -64,17 +68,23 @@ def summarize_diagnostics(history):
 	pyplot.savefig(filename + '_plot.png')
 	pyplot.close()
 
+
 # run the test harness for evaluating a model
 def run_test_harness():
 	# load dataset
+	print("0")
 	trainX, trainY, testX, testY = load_dataset()
 	# prepare pixel data
+	print("1")
 	trainX, testX = prep_pixels(trainX, testX)
 	# define model
+	print("2")
 	model = define_model()
 	# fit model
-	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=0)
+	print("3")
+	history = model.fit(trainX, trainY, epochs=10, batch_size=6, validation_data=(testX, testY), verbose=0)
 	# evaluate model
+	print("4")
 	_, acc = model.evaluate(testX, testY, verbose=0)
 	print('> %.3f' % (acc * 100.0))
 	# learning curves
