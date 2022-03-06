@@ -5,7 +5,7 @@ from matplotlib import pyplot
 
 import os
 
-from numpy import format_float_scientific
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import ssl
@@ -18,15 +18,10 @@ from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import Dense
 from keras.layers import Flatten
-from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD, Adam
 from keras.layers import Dropout
 from keras.preprocessing.image import ImageDataGenerator
 
-# TO DO
-# zapisywanie wynikiow
-# automatyzacja
-# tablica pomylek
-# rozmiar sieci(liczba warst + neurony), dropout + wspolczynnik, augmentacja, metody SGD, SGD z momentem ADAM
 
 # load train and test dataset
 def load_dataset():
@@ -88,7 +83,7 @@ def layer_input(model, layer_number:int=1, dropout_value:float=0.2, dropout_enea
         add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
 
 
-def specify_number_of_neuron(model, numers_of_neuron:int =128, dropout_value:float=0.2, dropout_eneable:bool=False):
+def specify_number_of_neuron(model, numers_of_neuron:int=128, dropout_value:float=0.2, dropout_eneable:bool=False):
     """
     Specifi number of neuron
     """
@@ -97,9 +92,30 @@ def specify_number_of_neuron(model, numers_of_neuron:int =128, dropout_value:flo
     model.add(Dense(10, activation='softmax'))
 
 
+def select_optimizer(optimizer:str = "SGD_MOMENTUM",
+                     learning_rate:float=0.001,
+                     beta_1:float = 0.9,
+                     beta_2:float=0.999,
+                     momentum:float=0.9,):
+    if optimizer == "ADAM":
+        current_optymizer = Adam(learning_rate=learning_rate, beta_1=beta_1, beta_2=beta_2)
+    elif optimizer == "SGD_MOMENTUM":
+        current_optymizer = SGD(learning_rate=learning_rate, momentum=momentum)
+    elif optimizer == "SGD":
+        current_optymizer = SGD(learning_rate=learning_rate)
+    return current_optymizer
 
 # define cnn model
-def define_model(layer_number:int=1,numers_of_neuron:int=128, dropout_value:float=0.2, dropout_eneable:bool=False):
+def define_model(layer_number:int=1,
+                 numers_of_neuron:int=128,
+                 dropout_value:float=0.2,
+                 dropout_eneable:bool=False,
+                 optimizer:str = "SGD_MOMENTUM",
+                 learning_rate:float=0.001,
+                 beta_1:float = 0.9,
+                 beta_2:float=0.999,
+                 momentum:float=0.9
+                 ):
     model = Sequential()
     layer_input(model=model,layer_number=layer_number, dropout_value=dropout_value, dropout_eneable=dropout_eneable)
     model.add(Flatten())
@@ -109,7 +125,9 @@ def define_model(layer_number:int=1,numers_of_neuron:int=128, dropout_value:floa
                              dropout_eneable=dropout_eneable)
     # model.add(Dense(10, activation='softmax'))
     # compile model
-    opt = SGD(learning_rate=0.001, momentum=0.9)
+    # # opt = SGD(learning_rate=0.001, momentum=0.9)
+    opt = select_optimizer(optimizer=optimizer, learning_rate=learning_rate, beta_1=beta_1, beta_2=beta_2, momentum=momentum)
+    
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
@@ -158,41 +176,89 @@ def data_augmentation_eneable(model, trainX, trainY, testX, testY,
                              fit_model_epoch:int=5,
                              fit_model_batch_size:int=64,
                              eneable:bool=False):
-    if eneable:
+    if eneable == True:
         # create data generato
         datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, horizontal_flip=True)
         # prepare iterator
-        it_train = datagen.flow(trainX, trainY, batch_size=64)
+        it_train = datagen.flow(trainX, trainY, batch_size=fit_model_batch_size)
          # fit model
         steps = int(trainX.shape[0] / 64)
-        history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=100, validation_data=(testX, testY), verbose=0)
+        history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=fit_model_epoch, validation_data=(testX, testY))
 	# evaluate model
 
     else:
         # fit model
-        history = model.fit(trainX, trainY, epochs=5, batch_size=64, validation_data=(testX, testY))
+        history = model.fit(trainX, trainY, epochs=fit_model_epoch, batch_size=fit_model_batch_size, validation_data=(testX, testY))
     return history
 
 # run the test harness for evaluating a model
-def run_test_harness():
+def run_test_harness(layer_number:int=1,
+                     numers_of_neuron:int=128,
+                     dropout_value:float=0.2,
+                     dropout_eneable:bool=False,
+                     optimizer:str = "SGD_MOMENTUM",
+                     learning_rate:float=0.001,
+                     beta_1:float = 0.9,
+                     beta_2:float=0.999,
+                     momentum:float=0.9,
+                     fit_model_epoch:int=5,
+                     fit_model_batch_size:int=64,
+                     data_augmentation_eneable_switch:bool=False
+                     ):
     # load dataset
     trainX, trainY, testX, testY = load_dataset()
     # prepare pixel data
     trainX, testX = prep_pixels(trainX, testX)
     # define model
-    model = define_model(layer_number=1, numers_of_neuron=128, dropout_value=0.2, dropout_eneable=format_float_scientific)
-    # # fit model
-    # history = model.fit(trainX, trainY, epochs=5, batch_size=64, validation_data=(testX, testY))
+    model = define_model(layer_number=layer_number,
+                         numers_of_neuron=numers_of_neuron,
+                         dropout_value=dropout_value,
+                         dropout_eneable=dropout_eneable,
+                         optimizer=optimizer,
+                         learning_rate=learning_rate,
+                         beta_1=beta_1,
+                         beta_2=beta_2,
+                         momentum=momentum)
+    # fit model
     history = data_augmentation_eneable(model=model, trainX=trainX, trainY=trainY, testX=testX, testY=testY,
-                                        fit_model_epoch=5,
-                                        fit_model_batch_size=64,
-                                        eneable=True)
+                                        fit_model_epoch=fit_model_epoch,
+                                        fit_model_batch_size=fit_model_batch_size,
+                                        eneable=data_augmentation_eneable_switch)
     # evaluate model
     _, acc = model.evaluate(testX, testY,)
     print('> %.3f' % (acc * 100.0))
     # learning curves
     summarize_diagnostics(history)
 
+# TO DO
+# zapisywanie wynikiow
+# automatyzacja
+# tablica pomylek
+# rozmiar sieci(liczba warst + neurony), dropout + wspolczynnik, augmentacja, metody SGD, SGD z momentem ADAM
+
+LAYER_NUMBER = [1, 2, 3]
+NUMBERS_OF_NEURON = [32, 64, 128]
+DROPOUT_VALUE = [0.2]
+DROPOUT_ENEABLE = [False, True]
+OPTIMIZER = ["SGD", "SGD_MOMENTUM", "ADAM"]
+LEARNING_RATE = [0.001]
+
+
+
+
+
+
 # entry point, run the test harness
 print("cifar10")
-run_test_harness()
+run_test_harness(layer_number=1,
+                 numers_of_neuron=128,
+                 dropout_value=0.2,
+                 dropout_eneable=False,
+                 optimizer="SGD_MOMENTUM",
+                 learning_rate=0.001,
+                 beta_1=0.9,
+                 beta_2=0.999,
+                 momentum=0.9,
+                 fit_model_epoch=5,
+                 fit_model_batch_size=64,
+                 data_augmentation_eneable_switch=False)
