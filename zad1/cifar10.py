@@ -17,7 +17,6 @@ from keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD, Adam
 from keras.layers import Dropout
 from keras.preprocessing.image import ImageDataGenerator
-# from sklern.metrics import  
 
 
 LAYER_NUMBER = [1, 2, 3]
@@ -290,9 +289,7 @@ def run_test_harness(layer_number:int=1,
     # evaluate model
     _, acc = model.evaluate(testX, testY,)
     # print('> %.3f' % (acc * 100.0))
-    # create confiusion matrix
-    matrix = confusion_matrix(testY, testX)
-    print(matrix)
+
 
     create_log(layer_number=layer_number,
                numers_of_neuron=numers_of_neuron,
