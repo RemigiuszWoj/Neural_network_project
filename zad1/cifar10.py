@@ -1,21 +1,32 @@
+from ast import Pass
+from re import M
 import sys
 from matplotlib import pyplot
 
 import os
+
+from numpy import format_float_scientific
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-from tensorflow.keras.datasets import cifar10
+from keras.datasets import cifar10
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import MaxPooling2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Flatten
+from keras.models import Sequential
+from keras.layers import Conv2D
+from keras.layers import MaxPooling2D
+from keras.layers import Dense
+from keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
+from keras.layers import Dropout
+from keras.preprocessing.image import ImageDataGenerator
 
+# TO DO
+# zapisywanie wynikiow
+# automatyzacja
+# tablica pomylek
+# rozmiar sieci(liczba warst + neurony), dropout + wspolczynnik, augmentacja, metody SGD, SGD z momentem ADAM
 
 # load train and test dataset
 def load_dataset():
@@ -38,41 +49,65 @@ def prep_pixels(train, test):
     # return normalized images
     return train_norm, test_norm
 
+def add_dropout(model, value:float=0.2, eneable:bool=False):
+    if eneable:
+        model.add(Dropout(value))
 
-def layer_input(model, layer_number:int=1) -> None:
+
+
+def layer_input(model, layer_number:int=1, dropout_value:float=0.2, dropout_eneable:bool=False) -> None:
+    """
+    Specify VGG blocks
+    """
     if layer_number == 1:
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
+        add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
     elif layer_number == 2:
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
+        add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
         model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
+        add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
     elif layer_number == 3:
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
         model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
+        add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
         model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
+        add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
         model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
         model.add(MaxPooling2D((2, 2)))
+        add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
 
 
-    
+def specify_number_of_neuron(model, numers_of_neuron:int =128, dropout_value:float=0.2, dropout_eneable:bool=False):
+    """
+    Specifi number of neuron
+    """
+    model.add(Dense(numers_of_neuron, activation='relu', kernel_initializer='he_uniform'))
+    add_dropout(model=model,value=dropout_value, eneable=dropout_eneable)
+    model.add(Dense(10, activation='softmax'))
+
 
 
 # define cnn model
-def define_model():
+def define_model(layer_number:int=1,numers_of_neuron:int=128, dropout_value:float=0.2, dropout_eneable:bool=False):
     model = Sequential()
-    layer_input(model=model,layer_number=1)
+    layer_input(model=model,layer_number=layer_number, dropout_value=dropout_value, dropout_eneable=dropout_eneable)
     model.add(Flatten())
-    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
-    model.add(Dense(10, activation='softmax'))
+    specify_number_of_neuron(model=model,
+                             numers_of_neuron=numers_of_neuron,
+                             dropout_value=dropout_value,
+                             dropout_eneable=dropout_eneable)
+    # model.add(Dense(10, activation='softmax'))
     # compile model
     opt = SGD(learning_rate=0.001, momentum=0.9)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
@@ -119,6 +154,25 @@ def summarize_diagnostics(history):
     pyplot.close()
 
 
+def data_augmentation_eneable(model, trainX, trainY, testX, testY,
+                             fit_model_epoch:int=5,
+                             fit_model_batch_size:int=64,
+                             eneable:bool=False):
+    if eneable:
+        # create data generato
+        datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, horizontal_flip=True)
+        # prepare iterator
+        it_train = datagen.flow(trainX, trainY, batch_size=64)
+         # fit model
+        steps = int(trainX.shape[0] / 64)
+        history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=100, validation_data=(testX, testY), verbose=0)
+	# evaluate model
+
+    else:
+        # fit model
+        history = model.fit(trainX, trainY, epochs=5, batch_size=64, validation_data=(testX, testY))
+    return history
+
 # run the test harness for evaluating a model
 def run_test_harness():
     # load dataset
@@ -126,9 +180,13 @@ def run_test_harness():
     # prepare pixel data
     trainX, testX = prep_pixels(trainX, testX)
     # define model
-    model = define_model()
-    # fit model
-    history = model.fit(trainX, trainY, epochs=5, batch_size=64, validation_data=(testX, testY))
+    model = define_model(layer_number=1, numers_of_neuron=128, dropout_value=0.2, dropout_eneable=format_float_scientific)
+    # # fit model
+    # history = model.fit(trainX, trainY, epochs=5, batch_size=64, validation_data=(testX, testY))
+    history = data_augmentation_eneable(model=model, trainX=trainX, trainY=trainY, testX=testX, testY=testY,
+                                        fit_model_epoch=5,
+                                        fit_model_batch_size=64,
+                                        eneable=True)
     # evaluate model
     _, acc = model.evaluate(testX, testY,)
     print('> %.3f' % (acc * 100.0))
