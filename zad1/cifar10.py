@@ -2,14 +2,8 @@ from ast import Pass
 from re import M
 import sys
 from matplotlib import pyplot
-
 import os
-
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-
 import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
 
 from keras.datasets import cifar10
 from tensorflow.keras.utils import to_categorical
@@ -22,6 +16,27 @@ from tensorflow.keras.optimizers import SGD, Adam
 from keras.layers import Dropout
 from keras.preprocessing.image import ImageDataGenerator
 
+
+LAYER_NUMBER = [1, 2, 3]
+NUMBERS_OF_NEURON = [32, 64, 128]
+
+OPTIMIZER = ["SGD", "SGD_MOMENTUM", "ADAM"]
+LEARNING_RATE = [0.001]
+BETA_1 = [0.9]
+BETA_2 = [0.999]
+MOMENTUM = [0.9]
+
+DATA_AUGMENTATION_ENEABLE_SWITCH = [False, True]
+FIT_MODEL_EPOCH = [5, 50, 100]
+FIT_MODEL_BATCH_SIZE = [64]
+
+DROPOUT_ENEABLE = [False, True]
+DROPOUT_VALUE = [0.2, 0.5, 0.8 ]
+
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # load train and test dataset
 def load_dataset():
@@ -230,29 +245,6 @@ def run_test_harness(layer_number:int=1,
     # learning curves
     summarize_diagnostics(history)
 
-# TO DO
-# zapisywanie wynikiow
-# automatyzacja
-# tablica pomylek
-# rozmiar sieci(liczba warst + neurony), dropout + wspolczynnik, augmentacja, metody SGD, SGD z momentem ADAM
-
-LAYER_NUMBER = [1, 2, 3]
-NUMBERS_OF_NEURON = [32, 64, 128]
-
-OPTIMIZER = ["SGD", "SGD_MOMENTUM", "ADAM"]
-LEARNING_RATE = [0.001]
-BETA_1 = [0.9]
-BETA_2 = [0.999]
-MOMENTUM = [0.9]
-
-DATA_AUGMENTATION_ENEABLE_SWITCH = [False, True]
-FIT_MODEL_EPOCH = [5, 50, 100]
-FIT_MODEL_BATCH_SIZE = [64]
-
-DROPOUT_ENEABLE = [False, True]
-DROPOUT_VALUE = [0.2, 0.5, 0.8 ]
-
-
 
 def detonate():
     for layer_number in LAYER_NUMBER:
@@ -281,6 +273,12 @@ def detonate():
                                                                 fit_model_batch_size=fit_model_batch_size,
                                                                 data_augmentation_eneable_switch=data_augmentation_eneable_switch)
 
+
+# TO DO
+# zapisywanie wynikiow
+# automatyzacja
+# tablica pomylek + dokładność
+# rozmiar sieci(liczba warst + neurony), dropout + wspolczynnik, augmentacja, metody SGD, SGD z momentem ADAM
 
 
 # entry point, run the test harness
