@@ -29,7 +29,7 @@ BETA_2 = [0.999]
 MOMENTUM = [0.9]
 
 DATA_AUGMENTATION_ENEABLE_SWITCH = [False, True]
-FIT_MODEL_EPOCH = [5, 50, 100]
+FIT_MODEL_EPOCH = [3, 5, 15]
 FIT_MODEL_BATCH_SIZE = [64]
 
 DROPOUT_ENEABLE = [False, True]
@@ -437,6 +437,7 @@ def zad1_test_run(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0
     """
     test
     """
+
     counter = counter + 1
     run_test_harness(data_name=data_name,
                      fit_model_epoch=fit_model_epoch,

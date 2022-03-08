@@ -10,7 +10,7 @@ momentum:0.9
 fit_model_epoch:1
 fit_model_batch_size:64
 data_augmentation_eneable_switch:False
-accuracy:0.47429999709129333
+accuracy:0.400299996137619
 data_name:cifar10
 run:0
 counter:1
