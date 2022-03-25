@@ -31,7 +31,10 @@ BETA_2 = [0.999]
 MOMENTUM = [0.9]
 
 DATA_AUGMENTATION_ENEABLE_SWITCH = [False, True]
-FIT_MODEL_EPOCH = [3, 5, 15]
+
+# FIT_MODEL_EPOCH = [3, 5, 15]
+FIT_MODEL_EPOCH = [15]
+
 FIT_MODEL_BATCH_SIZE = [64]
 
 DROPOUT_ENEABLE = [False, True]
@@ -461,4 +464,5 @@ def zad1_all(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
 # entry point, run the test harness
 print(DATA_NAME[0])
 # zad1_all(counter=COUNTER[0],fit_model_epoch=1,data_name=DATA_NAME[0])
-zad1_test_run(fit_model_epoch=1)
+# zad1_test_run(fit_model_epoch=1)
+zad1_reference(counter=COUNTER[0],fit_model_epoch=FIT_MODEL_EPOCH[0],data_name=DATA_NAME[0])
