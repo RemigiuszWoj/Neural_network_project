@@ -155,7 +155,7 @@ def define_model(layer_number:int=1,
                              dropout_value=dropout_value,
                              dropout_eneable=dropout_eneable)
     opt = select_optimizer(optimizer=optimizer, learning_rate=learning_rate, beta_1=beta_1, beta_2=beta_2, momentum=momentum)
-    
+
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
@@ -256,7 +256,7 @@ def create_log(layer_number:int=1,
     my_data_file.write("counter:" + str(counter) + "\n")
 
     my_data_file.close()
-    
+
 
 
 # run the test harness for evaluating a model
@@ -357,7 +357,7 @@ def detonate():
                                                                     data_name=data_name
                                                                     )
 
-                                                        
+
 def zad1_a(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
     """
     layer_numer
@@ -463,7 +463,7 @@ def zad1_all(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
 
 
 # TO DO
-# tablica pomylek 
+# tablica pomylek
 
 # entry point, run the test harness
 print(DATA_NAME[0])
