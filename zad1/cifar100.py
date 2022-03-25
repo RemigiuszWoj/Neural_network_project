@@ -293,6 +293,17 @@ def run_test_harness(layer_number:int=1,
     _, acc = model.evaluate(testX, testY,)
     # print('> %.3f' % (acc * 100.0))
 
+    predictions = model.predict(testX)
+    y_pred = (predictions > 0.5)
+
+    matrix = confusion_matrix(testY.argmax(axis=1), y_pred.argmax(axis=1))
+
+    print('Confusion_matrix: ', matrix)
+
+    disp = ConfusionMatrixDisplay(confusion_matrix=matrix)
+
+    disp.plot(cmap=pyplot.cm.Blues)
+    pyplot.show()
 
     create_log(layer_number=layer_number,
                numers_of_neuron=numers_of_neuron,
