@@ -1,8 +1,8 @@
-from ast import Pass
-from cProfile import run
-from re import M
-import sys
-from typing import Counter
+# from ast import Pass
+# from cProfile import run
+# from re import M
+# import sys
+# from typing import Counter
 from matplotlib import pyplot
 import os
 import ssl
@@ -237,7 +237,7 @@ def create_log(layer_number:int=1,
                data_name:str = "cifar10",
                run:int=0,
                ):
-    my_data_file = open(data_name + os.sep + str(run) + os.sep + "data_log" + os.sep + data_name + "_" + str(counter) + ".txt","w+")
+    my_data_file = open(data_name + os.sep + str(run) + os.sep + "data_log" + os.sep + data_name + "_" + str(counter) + ".txt", "+w")
     my_data_file.write("layer_number:" + str(layer_number) + "\n")
     my_data_file.write("numers_of_neuron:" + str(numers_of_neuron) + "\n")
     my_data_file.write("dropout_value:" + str(dropout_value) + "\n")
