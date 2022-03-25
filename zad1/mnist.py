@@ -8,6 +8,8 @@ print("mnist")
 from matplotlib import pyplot
 import os
 import ssl
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
 
 from keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
