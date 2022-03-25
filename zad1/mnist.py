@@ -300,12 +300,12 @@ def run_test_harness(layer_number:int=1,
 
     matrix = confusion_matrix(testY.argmax(axis=1), y_pred.argmax(axis=1))
 
-    print('Confusion_matrix: ', matrix)
-
     disp = ConfusionMatrixDisplay(confusion_matrix=matrix)
 
     disp.plot(cmap=pyplot.cm.Blues)
-    pyplot.show()
+    filename =data_name + os.sep + str(run) + os.sep + "plot" + os.sep + data_name + "_" + str(counter)
+    pyplot.savefig(filename + '_matrix.png')
+    pyplot.close()
 
     create_log(layer_number=layer_number,
                numers_of_neuron=numers_of_neuron,
