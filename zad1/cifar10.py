@@ -8,6 +8,9 @@ import os
 import ssl
 
 from keras.datasets import cifar10
+from keras.datasets import cifar100
+from keras.datasets import mnist
+
 from tensorflow.keras.utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Conv2D
@@ -46,15 +49,21 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 ssl._create_default_https_context = ssl._create_unverified_context
 
 # load train and test dataset
-def load_dataset():
-    # load dataset
-    (trainX, trainY), (testX, testY) = cifar10.load_data()
-    # one hot encode target values
-    trainY = to_categorical(trainY)
-    testY = to_categorical(testY)
-    return trainX, trainY, testX, testY
-
-
+def load_dataset(data_base:str="cifar10"):
+    if data_base == "cifar10":
+        # load dataset
+        (trainX, trainY), (testX, testY) = cifar10.load_data()
+        # one hot encode target values
+        trainY = to_categorical(trainY)
+        testY = to_categorical(testY)
+        return trainX, trainY, testX, testY
+    elif data_base == "mnist":
+        # load dataset
+        (trainX, trainY), (testX, testY) = mnist.load_data()
+        # one hot encode target values
+        trainY = to_categorical(trainY)
+        testY = to_categorical(testY)
+        return trainX, trainY, testX, testY
 # scale pixels
 def prep_pixels(train, test):
     # convert from integers to floats
