@@ -8,6 +8,8 @@ print("fasion_mnist")
 from matplotlib import pyplot
 import os
 import ssl
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
 
 from keras.datasets import fashion_mnist
 from tensorflow.keras.utils import to_categorical
@@ -292,6 +294,17 @@ def run_test_harness(layer_number:int=1,
     _, acc = model.evaluate(testX, testY,)
     # print('> %.3f' % (acc * 100.0))
 
+    predictions = model.predict(testX)
+    y_pred = (predictions > 0.5)
+
+    matrix = confusion_matrix(testY.argmax(axis=1), y_pred.argmax(axis=1))
+
+    disp = ConfusionMatrixDisplay(confusion_matrix=matrix)
+
+    disp.plot(cmap=pyplot.cm.Blues)
+    filename =data_name + os.sep + str(run) + os.sep + "plot" + os.sep + data_name + "_" + str(counter)
+    pyplot.savefig(filename + '_matrix.png')
+    pyplot.close()
 
     create_log(layer_number=layer_number,
                numers_of_neuron=numers_of_neuron,
