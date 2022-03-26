@@ -1,5 +1,5 @@
 layer_number:1
-numers_of_neuron:32
+numers_of_neuron:128
 dropout_value:0.2
 dropout_eneable:False
 optimizer:SGD_MOMENTUM
@@ -12,5 +12,5 @@ fit_model_batch_size:64
 data_augmentation_eneable_switch:False
 accuracy:0.9854999780654907
 data_name:mnist
-run:1
-counter:1
+run:3
+counter:3
