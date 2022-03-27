@@ -10,7 +10,7 @@ momentum:0.9
 fit_model_epoch:1
 fit_model_batch_size:64
 data_augmentation_eneable_switch:False
-accuracy:0.9531000256538391
+accuracy:0.9532999992370605
 data_name:mnist
 run:0
 counter:1

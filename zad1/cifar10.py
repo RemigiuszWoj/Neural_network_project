@@ -43,7 +43,9 @@ DROPOUT_VALUE = [0.2, 0.5, 0.8 ]
 
 DATA_NAME = ["cifar10"]
 
-RUN = [1, 2, 3]
+# RUN = [1, 2, 3]
+RUN = [1]
+
 COUNTER = [0]
 
 
@@ -482,4 +484,5 @@ def zad1_all(counter:int=0, fit_model_epoch:int=5,data_name:str=DATA_NAME[0]):
 # entry point, run the test harness
 print(DATA_NAME[0])
 # zad1_all(counter=COUNTER[0],fit_model_epoch=1,data_name=DATA_NAME[0])
-zad1_test_run(fit_model_epoch=1)
+# zad1_test_run(fit_model_epoch=1)
+# zad1_b(counter=COUNTER[0],fit_model_epoch=FIT_MODEL_EPOCH[0],data_name=DATA_NAME[0])

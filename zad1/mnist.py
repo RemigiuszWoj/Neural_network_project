@@ -481,5 +481,6 @@ zad1_test_run(fit_model_epoch=1)
 
 # zad1_reference(counter=COUNTER[0],fit_model_epoch=FIT_MODEL_EPOCH[0],data_name=DATA_NAME[0])
 # zad1_a(counter=COUNTER[0],fit_model_epoch=FIT_MODEL_EPOCH[0],data_name=DATA_NAME[0])
+zad1_b(counter=COUNTER[0],fit_model_epoch=FIT_MODEL_EPOCH[0],data_name=DATA_NAME[0])
 
 

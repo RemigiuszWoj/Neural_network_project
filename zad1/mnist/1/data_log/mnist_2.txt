@@ -1,6 +1,6 @@
 layer_number:1
-numers_of_neuron:64
-dropout_value:0.2
+numers_of_neuron:128
+dropout_value:0.5
 dropout_eneable:False
 optimizer:SGD_MOMENTUM
 learning_rate:0.001

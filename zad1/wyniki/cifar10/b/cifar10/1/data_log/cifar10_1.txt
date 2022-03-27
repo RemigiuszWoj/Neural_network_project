@@ -1,0 +1,16 @@
+layer_number:1
+numers_of_neuron:128
+dropout_value:0.2
+dropout_eneable:False
+optimizer:SGD_MOMENTUM
+learning_rate:0.001
+beta_1:0.9
+beta_2:0.999
+momentum:0.9
+fit_model_epoch:15
+fit_model_batch_size:64
+data_augmentation_eneable_switch:False
+accuracy:0.6590999960899353
+data_name:cifar10
+run:1
+counter:1
