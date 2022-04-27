@@ -1,5 +1,9 @@
-print("hi")
-
+"""
+NNFIR   zmiana danych wejściowych -> usunięcie wartości y
+        zmiana liczby wejść sieci z 4 na 2
+NNARX   rozszerzenie NNFIR
+        4 dane wejściowe -> u i y (poprawka na liczbie wejść sieci)
+"""
 import os
 import numpy as np #operacje na macierzach podobnie jak w matlabie
 import matplotlib.pyplot as plt #tworzenie wykresów bardzo podobnie jak w␣,→Matlabie
@@ -35,7 +39,7 @@ Y2=Y[10:]
 plt.plot(Y2)
 plt.ylabel('y')
 plt.title('wyjście obiektu') #warto sprawdzic czy wartosc wyjscia nie dazy␣,→do +inf lub -inf (jezeli obiekt niestabilny prosze zmniejszyc wspolczynniki)
-#plt.show() #w ipython mozna pominac ta linijke
+plt.show() #w ipython mozna pominac ta linijke
 
 def dane_dla_sieci (u, y):
     """
@@ -52,7 +56,8 @@ def dane_dla_sieci (u, y):
     print(u.size)
     assert u.size == y.size #zabezpieczenie przed niejednakowymi rozmiarami
     n=len(u)
-    X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci
+    #X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
+    X=[ u[1:-2], u[0:-3]]   #NNFIR
     X=np.array (X)
     X=X.T #transpozycja
     T=y[2:-1] #pozadane wartosci wyjsc sieci
@@ -61,7 +66,7 @@ def dane_dla_sieci (u, y):
 
  # Utworzenie sieci
 model = Sequential()
-input_shape = (4,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
+input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
 model.add(Dense(15, input_shape=input_shape, activation='tanh')) #15 neuronow␣,→z f.aktywacji tanh w pierwszej warstwie ukrytej
 model.add(Dense(10, activation='tanh')) #10 neuronow z f.aktywacji tanh
 model.add(Dense(1, activation='linear')) #1 neuron w warstwie wyjsciowej␣,→(liczba neuronow w tej warstwie jest rowna liczbie wyjsci sieci)
@@ -81,7 +86,7 @@ plt.xlabel ('Epoki')
 plt.ylabel ('MSE')
 plt.legend()
 plt.grid (True)
-#plt.show ()
+plt.show ()
 
 Y_hat = model.predict (X)
 
@@ -89,7 +94,7 @@ plt.plot (Y_hat[200:300],'r', label='wyjscie modelu')
 plt.plot (T[200:300], label='wyjscie obiektu')
 plt.legend()
 plt.grid (True)
-#plt.show ()
+plt.show ()
 
 T.shape #liczba danych
 X.shape #liczba danych x liczba wejsc modelu
@@ -99,7 +104,7 @@ print (Y_hat.shape)
 errors=T-Y_hat[:,0]
 plt.plot(errors)
 plt.title('błędy predykcji (róznica miedzy wyjściem obiektu i wyjściem modelu)')
-#plt.show()
+plt.show()
 
 Y_hat[:,0]
 MSE=np.mean(errors**2)
