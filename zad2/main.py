@@ -27,7 +27,7 @@ def obiekt (u, add_noise=False, sigma=1.5):
         y += np.random.normal (0.0, sigma, u.size) #0.0 - wartość oczekiwana␣,→powinna byc zero, 1.5 - odchylenie standardowe
     return y
 
-def dane_dla_sieci (u, y):
+def dane_dla_sieci (u, y, typ_sieci="NNARX"):
     """
     Przygotowanie zbioru danych dla sieci neuronowej
     u - wektor z wartosciami pobudzenia
@@ -42,25 +42,36 @@ def dane_dla_sieci (u, y):
     print(u.size)
     assert u.size == y.size #zabezpieczenie przed niejednakowymi rozmiarami
     n=len(u)
-    #X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
-    X=[ u[1:-2], u[0:-3]]   #NNFIR
+    # X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
+    # X=[ u[1:-2], u[0:-3]]   #NNFIR
+    if typ_sieci == "NNARX":
+        X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
+    elif typ_sieci == "NNFIR":   
+        X=[ u[1:-2], u[0:-3]]   #NNFIR
+
+
     X=np.array (X)
     X=X.T #transpozycja
     T=y[2:-1] #pozadane wartosci wyjsc sieci
     T=np.array(T)
     return X, T
 
-def build_network():
+def build_network(X, T,typ_sieci="NNARX"):
     # Utworzenie sieci
     model = Sequential()
-    input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
+    if typ_sieci == "NNARX":
+        input_shape = (4,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
+    elif typ_sieci == "NNFIR":   
+        input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
+
+
+    # input_shape = (4,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
     model.add(Dense(15, input_shape=input_shape, activation='tanh')) #15 neuronow␣,→z f.aktywacji tanh w pierwszej warstwie ukrytej
     model.add(Dense(10, activation='tanh')) #10 neuronow z f.aktywacji tanh
     model.add(Dense(1, activation='linear')) #1 neuron w warstwie wyjsciowej␣,→(liczba neuronow w tej warstwie jest rowna liczbie wyjsci sieci)
     # loss - funkcja straty (celu) minimalizowana podczas treningu, optimizer␣,→oznacz alg. uczenia
     model.compile(loss='mean_squared_error', optimizer='sgd',metrics=['mean_squared_error'])
-    #Utworzenie macierzy X i T
-    X,T = dane_dla_sieci (U2,Y2)
+
     #trening sieci
     history = model.fit(X, T, epochs=10, batch_size=100, verbose=1,validation_split=0.2)
     model.summary()
@@ -69,6 +80,11 @@ def build_network():
 
 
 N = 10000
+
+TYP_SIECI = ["NNARX", "NNFIR"]
+typ_sieci = TYP_SIECI[1]
+
+
 U = np.random.uniform(low=0.0, high=2.0, size=N) #POBUDZENIE (trzeba założyć␣,→dopuszczalną min. i max. wartość)
 #rozklad jednostajny np.random.uniform - opis na https://numpy.org/doc/stable/,→reference/random/generated/numpy.random.uniform.html
 #print (U)
@@ -82,7 +98,10 @@ Y2=Y[10:]
 # plt.title('wyjście obiektu') #warto sprawdzic czy wartosc wyjscia nie dazy␣,→do +inf lub -inf (jezeli obiekt niestabilny prosze zmniejszyc wspolczynniki)
 # plt.show() #w ipython mozna pominac ta linijke
 
-model, history, X, T = build_network()
+#Utworzenie macierzy X i T
+X,T = dane_dla_sieci (U2, Y2, typ_sieci=typ_sieci)
+
+model, history, X, T = build_network(X=X, T=T, typ_sieci=typ_sieci)
 
 plt.plot (history.history['loss'], label='train_loss')
 plt.plot (history.history['val_loss'], label='val_loss')
