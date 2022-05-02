@@ -10,11 +10,6 @@ import matplotlib.pyplot as plt #tworzenie wykresów bardzo podobnie jak w␣,�
 from tensorflow.keras.models import Sequential #keras - bardzo dobrze␣,→zaprojektowana biblioteka do sieci
 from tensorflow.keras.layers import Dense
 
-N = 10000
-U = np.random.uniform(low=0.0, high=2.0, size=N) #POBUDZENIE (trzeba założyć␣,→dopuszczalną min. i max. wartość)
-#rozklad jednostajny np.random.uniform - opis na https://numpy.org/doc/stable/,→reference/random/generated/numpy.random.uniform.html
-#print (U)
-
 def obiekt (u, add_noise=False, sigma=1.5):
     """
     Funkcja obliczajaca wyjscie obiektu
@@ -31,15 +26,6 @@ def obiekt (u, add_noise=False, sigma=1.5):
     if add_noise:
         y += np.random.normal (0.0, sigma, u.size) #0.0 - wartość oczekiwana␣,→powinna byc zero, 1.5 - odchylenie standardowe
     return y
-
-Y = obiekt(U) #obliczenie wyjscia obiektu
-#odrzucenie pierwszych 10 probek u[10:]=u[10:len(u)]
-U2=U[10:]
-Y2=Y[10:]
-plt.plot(Y2)
-plt.ylabel('y')
-plt.title('wyjście obiektu') #warto sprawdzic czy wartosc wyjscia nie dazy␣,→do +inf lub -inf (jezeli obiekt niestabilny prosze zmniejszyc wspolczynniki)
-plt.show() #w ipython mozna pominac ta linijke
 
 def dane_dla_sieci (u, y):
     """
@@ -64,20 +50,39 @@ def dane_dla_sieci (u, y):
     T=np.array(T)
     return X, T
 
- # Utworzenie sieci
-model = Sequential()
-input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
-model.add(Dense(15, input_shape=input_shape, activation='tanh')) #15 neuronow␣,→z f.aktywacji tanh w pierwszej warstwie ukrytej
-model.add(Dense(10, activation='tanh')) #10 neuronow z f.aktywacji tanh
-model.add(Dense(1, activation='linear')) #1 neuron w warstwie wyjsciowej␣,→(liczba neuronow w tej warstwie jest rowna liczbie wyjsci sieci)
-# loss - funkcja straty (celu) minimalizowana podczas treningu, optimizer␣,→oznacz alg. uczenia
-model.compile(loss='mean_squared_error', optimizer='sgd',metrics=['mean_squared_error'])
-#Utworzenie macierzy X i T
-X,T = dane_dla_sieci (U2,Y2)
-#trening sieci
-history = model.fit(X, T, epochs=10, batch_size=100, verbose=1,validation_split=0.2)
+def build_network():
+    # Utworzenie sieci
+    model = Sequential()
+    input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
+    model.add(Dense(15, input_shape=input_shape, activation='tanh')) #15 neuronow␣,→z f.aktywacji tanh w pierwszej warstwie ukrytej
+    model.add(Dense(10, activation='tanh')) #10 neuronow z f.aktywacji tanh
+    model.add(Dense(1, activation='linear')) #1 neuron w warstwie wyjsciowej␣,→(liczba neuronow w tej warstwie jest rowna liczbie wyjsci sieci)
+    # loss - funkcja straty (celu) minimalizowana podczas treningu, optimizer␣,→oznacz alg. uczenia
+    model.compile(loss='mean_squared_error', optimizer='sgd',metrics=['mean_squared_error'])
+    #Utworzenie macierzy X i T
+    X,T = dane_dla_sieci (U2,Y2)
+    #trening sieci
+    history = model.fit(X, T, epochs=10, batch_size=100, verbose=1,validation_split=0.2)
+    model.summary()
+    
+    return model, history, X, T
 
-model.summary()
+
+N = 10000
+U = np.random.uniform(low=0.0, high=2.0, size=N) #POBUDZENIE (trzeba założyć␣,→dopuszczalną min. i max. wartość)
+#rozklad jednostajny np.random.uniform - opis na https://numpy.org/doc/stable/,→reference/random/generated/numpy.random.uniform.html
+#print (U)
+
+Y = obiekt(U) #obliczenie wyjscia obiektu
+#odrzucenie pierwszych 10 probek u[10:]=u[10:len(u)]
+U2=U[10:]
+Y2=Y[10:]
+# plt.plot(Y2)
+# plt.ylabel('y')
+# plt.title('wyjście obiektu') #warto sprawdzic czy wartosc wyjscia nie dazy␣,→do +inf lub -inf (jezeli obiekt niestabilny prosze zmniejszyc wspolczynniki)
+# plt.show() #w ipython mozna pominac ta linijke
+
+model, history, X, T = build_network()
 
 plt.plot (history.history['loss'], label='train_loss')
 plt.plot (history.history['val_loss'], label='val_loss')
