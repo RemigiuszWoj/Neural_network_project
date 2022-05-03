@@ -78,72 +78,122 @@ def build_network(X, T,typ_sieci="NNARX"):
     
     return model, history, X, T
 
+def MSE_epoki(history, typ_sieci, save=True, run=0):
+    plt.plot (history.history['loss'], label='train_loss')
+    plt.plot (history.history['val_loss'], label='val_loss')
+    #plt.ylim ([0, 10])
+    plt.xlabel ('Epoki')
+    plt.ylabel ('MSE')
+    plt.legend()
+    plt.grid (True)
+    if save == True:
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "MSE_epoki" 
+        plt.savefig(filename + '_plot.png')
+        plt.close()
+    else:
+        plt.show()
+    
+def model_obiekt(Y_hat, T ,typ_sieci, save=True, run=0):
+    plt.plot (Y_hat[200:300],'r', label='wyjscie modelu')
+    plt.plot (T[200:300], label='wyjscie obiektu')
+    plt.legend()
+    plt.grid (True)
+    if save == True:
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "model_obiekt" 
+        plt.savefig(filename + '_plot.png')
+        plt.close()
+    else:
+        plt.show()
+
+def print_errors(errors, typ_sieci, save=True, run=0):
+    plt.plot(errors)
+    plt.title('błędy predykcji (róznica miedzy wyjściem obiektu i wyjściem modelu)')
+    if save == True:
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "errors" 
+        plt.savefig(filename + '_plot.png')
+        plt.close()
+    else:
+        plt.show()
+    
+def create_log(typ_sieci ,Y_hat, errors, T, X, run):
+    #  logs
+    Y_hat[:,0]
+    MSE=np.mean(errors**2)
+
+    #UWAGA - nie nalezy testowac na danych uzytych do treningu !!!
+    #mozna zbior danych podzielic na zbior uczący (treniningowy) i testowy
+    n=len(T)
+    n2 = n//2 #w pythonie operator // oznacza dzielenie bez reszty
+    #np. pierwsza polowa danych na zbior uczacy
+    T_train = T[:n2]
+    X_train = X[:n2,:] #podobnie jak w matlabie - przed przecinkiem wiersze, po␣,→przecinku kolumny
+    #np. druga polowa danych na zbior testujacy - jest on potrzebny, gdyz ocena␣,→modelu powinna zostac wykonana na danych NIE uzytych do treningu!
+    T_test = T[n2:]
+    X_test = X[n2:,:]
+
+    my_data_file = open(str(run) + os.sep + typ_sieci + os.sep + "data_log" + ".txt", "+w")
+    my_data_file.write("MSE: " + str(MSE) + "\n")
+    my_data_file.write("T_Train: " + str(T_train.shape) + "\n")
+    my_data_file.write("X_Train: " + str(X_train.shape) + "\n")
+
+    my_data_file.write("T_Test: " + str(T_test.shape) + "\n")
+    my_data_file.write("X_Test: " + str(X_test.shape) + "\n")
+
+    # print("MSE:", MSE)
+    # print ("T_Train: ", T_train.shape, '\nX_Train: ', X_train.shape)
+    # print ("T_Test: ", T_test.shape, '\nX_Test: ', X_test.shape)
+
+def badania(N, plots, logs, typ_sieci, run, save = True):
+    U = np.random.uniform(low=0.0, high=2.0, size=N) #POBUDZENIE (trzeba założyć␣,→dopuszczalną min. i max. wartość)
+    #rozklad jednostajny np.random.uniform - opis na https://numpy.org/doc/stable/,→reference/random/generated/numpy.random.uniform.html
+    #print (U)
+
+    Y = obiekt(U) #obliczenie wyjscia obiektu
+        #odrzucenie pierwszych 10 probek u[10:]=u[10:len(u)]
+    U2=U[10:]
+    Y2=Y[10:]
+    # plt.plot(Y2)
+    # plt.ylabel('y')
+    # plt.title('wyjście obiektu') #warto sprawdzic czy wartosc wyjscia nie dazy␣,→do +inf lub -inf (jezeli obiekt niestabilny prosze zmniejszyc wspolczynniki)
+    # plt.show() #w ipython mozna pominac ta linijke
+
+    #Utworzenie macierzy X i T
+    X,T = dane_dla_sieci (U2, Y2, typ_sieci=typ_sieci)
+
+    model, history, X, T = build_network(X=X, T=T, typ_sieci=typ_sieci)
+    Y_hat = model.predict (X)
+    T.shape #liczba danych
+    X.shape #liczba danych x liczba wejsc modelu
+    # print (Y_hat.shape)
+    (Y_hat[:,0]).shape
+    errors=T-Y_hat[:,0]
+
+    if plots == True:
+        #  plots
+        MSE_epoki(history=history, typ_sieci=typ_sieci, save=save, run=run)
+        model_obiekt(Y_hat=Y_hat, T=T, typ_sieci=typ_sieci, save=save , run=run)
+        print_errors(errors=errors, typ_sieci=typ_sieci, save=save , run=run)
+
+    if logs == True:
+        create_log(typ_sieci=typ_sieci, Y_hat=Y_hat, errors=errors, T=T, X=X, run=run)   
+
+
+
+
 
 N = 10000
 
 TYP_SIECI = ["NNARX", "NNFIR"]
-typ_sieci = TYP_SIECI[1]
+# TYP_SIECI = TYP_SIECI[0]
 
+# RUNS = [1, 2, 3]
+RUNS = [0]
 
-U = np.random.uniform(low=0.0, high=2.0, size=N) #POBUDZENIE (trzeba założyć␣,→dopuszczalną min. i max. wartość)
-#rozklad jednostajny np.random.uniform - opis na https://numpy.org/doc/stable/,→reference/random/generated/numpy.random.uniform.html
-#print (U)
+plots = True
+logs = True
+save = True
 
-Y = obiekt(U) #obliczenie wyjscia obiektu
-#odrzucenie pierwszych 10 probek u[10:]=u[10:len(u)]
-U2=U[10:]
-Y2=Y[10:]
-# plt.plot(Y2)
-# plt.ylabel('y')
-# plt.title('wyjście obiektu') #warto sprawdzic czy wartosc wyjscia nie dazy␣,→do +inf lub -inf (jezeli obiekt niestabilny prosze zmniejszyc wspolczynniki)
-# plt.show() #w ipython mozna pominac ta linijke
-
-#Utworzenie macierzy X i T
-X,T = dane_dla_sieci (U2, Y2, typ_sieci=typ_sieci)
-
-model, history, X, T = build_network(X=X, T=T, typ_sieci=typ_sieci)
-
-plt.plot (history.history['loss'], label='train_loss')
-plt.plot (history.history['val_loss'], label='val_loss')
-#plt.ylim ([0, 10])
-plt.xlabel ('Epoki')
-plt.ylabel ('MSE')
-plt.legend()
-plt.grid (True)
-plt.show ()
-
-Y_hat = model.predict (X)
-
-plt.plot (Y_hat[200:300],'r', label='wyjscie modelu')
-plt.plot (T[200:300], label='wyjscie obiektu')
-plt.legend()
-plt.grid (True)
-plt.show ()
-
-T.shape #liczba danych
-X.shape #liczba danych x liczba wejsc modelu
-print (Y_hat.shape)
-(Y_hat[:,0]).shape
-
-errors=T-Y_hat[:,0]
-plt.plot(errors)
-plt.title('błędy predykcji (róznica miedzy wyjściem obiektu i wyjściem modelu)')
-plt.show()
-
-Y_hat[:,0]
-MSE=np.mean(errors**2)
-print(MSE)
-
-#UWAGA - nie nalezy testowac na danych uzytych do treningu !!!
-#mozna zbior danych podzielic na zbior uczący (treniningowy) i testowy
-n=len(T)
-n2 = n//2 #w pythonie operator // oznacza dzielenie bez reszty
-#np. pierwsza polowa danych na zbior uczacy
-T_train = T[:n2]
-X_train = X[:n2,:] #podobnie jak w matlabie - przed przecinkiem wiersze, po␣,→przecinku kolumny
-#np. druga polowa danych na zbior testujacy - jest on potrzebny, gdyz ocena␣,→modelu powinna zostac wykonana na danych NIE uzytych do treningu!
-T_test = T[n2:]
-X_test = X[n2:,:]
-
-print ("T_Train: ", T_train.shape, '\nX_Train: ', X_train.shape)
-print ("T_Test: ", T_test.shape, '\nX_Test: ', X_test.shape)
+for run in RUNS:
+    for typ_sieci in TYP_SIECI:
+        badania(N=N, plots=plots, logs=logs, typ_sieci=typ_sieci, run=run, save=save)
+        
