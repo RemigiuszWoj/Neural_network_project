@@ -191,7 +191,7 @@ RUNS = [0]
 
 plots = True
 logs = True
-save = True
+save = True # daj na False to nie bedzie tego bledu z os.sep() tylko wykresy beda sie plotowac
 
 for run in RUNS:
     for typ_sieci in TYP_SIECI:
