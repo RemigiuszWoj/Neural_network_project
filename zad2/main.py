@@ -39,7 +39,7 @@ def dane_dla_sieci (u, y, typ_sieci="NNARX"):
     ,→wejścia: y(k-1), y(k-2), u(k-1), u(k-2)
     i jedno wyjscie y_hat(k)
     """
-    print(u.size)
+    # print(u.size)
     assert u.size == y.size #zabezpieczenie przed niejednakowymi rozmiarami
     n=len(u)
     # X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
@@ -186,8 +186,8 @@ N = 10000
 TYP_SIECI = ["NNARX", "NNFIR"]
 # TYP_SIECI = TYP_SIECI[0]
 
-# RUNS = [1, 2, 3]
-RUNS = [0]
+RUNS = [1, 2, 3]
+# RUNS = [0]
 
 plots = True
 logs = True
@@ -195,5 +195,7 @@ save = True # daj na False to nie bedzie tego bledu z os.sep() tylko wykresy bed
 
 for run in RUNS:
     for typ_sieci in TYP_SIECI:
+        print(run)
+        print(typ_sieci)
         badania(N=N, plots=plots, logs=logs, typ_sieci=typ_sieci, run=run, save=save)
         
