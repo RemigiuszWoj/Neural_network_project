@@ -46,7 +46,7 @@ def dane_dla_sieci (u, y, typ_sieci="NNARX"):
     # X=[ u[1:-2], u[0:-3]]   #NNFIR
     if typ_sieci == "NNARX":
         X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
-    elif typ_sieci == "NNFIR":   
+    elif typ_sieci == "NNFIR":
         X=[ u[1:-2], u[0:-3]]   #NNFIR
 
 
@@ -61,7 +61,7 @@ def build_network(X, T,typ_sieci="NNARX"):
     model = Sequential()
     if typ_sieci == "NNARX":
         input_shape = (4,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
-    elif typ_sieci == "NNFIR":   
+    elif typ_sieci == "NNFIR":
         input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
 
 
@@ -75,7 +75,7 @@ def build_network(X, T,typ_sieci="NNARX"):
     #trening sieci
     history = model.fit(X, T, epochs=10, batch_size=100, verbose=1,validation_split=0.2)
     model.summary()
-    
+
     return model, history, X, T
 
 def MSE_epoki(history, typ_sieci, save=True, run=0):
@@ -87,19 +87,19 @@ def MSE_epoki(history, typ_sieci, save=True, run=0):
     plt.legend()
     plt.grid (True)
     if save == True:
-        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "MSE_epoki" 
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "MSE_epoki"
         plt.savefig(filename + '_plot.png')
         plt.close()
     else:
         plt.show()
-    
+
 def model_obiekt(Y_hat, T ,typ_sieci, save=True, run=0):
     plt.plot (Y_hat[200:300],'r', label='wyjscie modelu')
     plt.plot (T[200:300], label='wyjscie obiektu')
     plt.legend()
     plt.grid (True)
     if save == True:
-        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "model_obiekt" 
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "model_obiekt"
         plt.savefig(filename + '_plot.png')
         plt.close()
     else:
@@ -109,12 +109,12 @@ def print_errors(errors, typ_sieci, save=True, run=0):
     plt.plot(errors)
     plt.title('błędy predykcji (róznica miedzy wyjściem obiektu i wyjściem modelu)')
     if save == True:
-        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "errors" 
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "errors"
         plt.savefig(filename + '_plot.png')
         plt.close()
     else:
         plt.show()
-    
+
 def create_log(typ_sieci ,Y_hat, errors, T, X, run):
     #  logs
     Y_hat[:,0]
@@ -175,7 +175,7 @@ def badania(N, plots, logs, typ_sieci, run, save = True):
         print_errors(errors=errors, typ_sieci=typ_sieci, save=save , run=run)
 
     if logs == True:
-        create_log(typ_sieci=typ_sieci, Y_hat=Y_hat, errors=errors, T=T, X=X, run=run)   
+        create_log(typ_sieci=typ_sieci, Y_hat=Y_hat, errors=errors, T=T, X=X, run=run)
 
 
 
@@ -191,11 +191,10 @@ RUNS = [1, 2, 3]
 
 plots = True
 logs = True
-save = True # daj na False to nie bedzie tego bledu z os.sep() tylko wykresy beda sie plotowac
+save = False # daj na False to nie bedzie tego bledu z os.sep() tylko wykresy beda sie plotowac
 
 for run in RUNS:
     for typ_sieci in TYP_SIECI:
         print(run)
         print(typ_sieci)
         badania(N=N, plots=plots, logs=logs, typ_sieci=typ_sieci, run=run, save=save)
-        
