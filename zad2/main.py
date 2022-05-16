@@ -45,8 +45,13 @@ def dane_dla_sieci (u, y, typ_sieci="NNARX"):
     # X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
     # X=[ u[1:-2], u[0:-3]]   #NNFIR
     if typ_sieci == "NNARX":
+<<<<<<< HEAD
         X=[ y[1:-2], y[0:-3], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
     elif typ_sieci == "NNFIR":
+=======
+        X=[ y[2:-1], y[1:-2], y[0:-3], u[2:-1], u[1:-2], u[0:-3] ] #macierz z wartosciami wejscia␣,→sieci NNARX
+    elif typ_sieci == "NNFIR":   
+>>>>>>> 68176d79a283c2d43ce1f97fae640716169601a5
         X=[ u[1:-2], u[0:-3]]   #NNFIR
 
 
@@ -60,8 +65,13 @@ def build_network(X, T,typ_sieci="NNARX"):
     # Utworzenie sieci
     model = Sequential()
     if typ_sieci == "NNARX":
+<<<<<<< HEAD
         input_shape = (4,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
     elif typ_sieci == "NNFIR":
+=======
+        input_shape = (6,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
+    elif typ_sieci == "NNFIR":   
+>>>>>>> 68176d79a283c2d43ce1f97fae640716169601a5
         input_shape = (2,) #liczba wejsc sieci - uwaga na przecinek - w pythonie 4␣,→rozni sie od (4,) !!!
 
 
@@ -115,6 +125,19 @@ def print_errors(errors, typ_sieci, save=True, run=0):
     else:
         plt.show()
 
+<<<<<<< HEAD
+=======
+def print_hist(errors, typ_sieci, save=True, run=0):
+    plt.hist(errors,50,)
+    plt.title('Histogram błędów')
+    if save == True:
+        filename = str(run) + os.sep + typ_sieci + os.sep + os.sep + "hist" 
+        plt.savefig(filename + '_plot.png')
+        plt.close()
+    else:
+        plt.show()
+
+>>>>>>> 68176d79a283c2d43ce1f97fae640716169601a5
 def create_log(typ_sieci ,Y_hat, errors, T, X, run):
     #  logs
     Y_hat[:,0]
@@ -173,6 +196,7 @@ def badania(N, plots, logs, typ_sieci, run, save = True):
         MSE_epoki(history=history, typ_sieci=typ_sieci, save=save, run=run)
         model_obiekt(Y_hat=Y_hat, T=T, typ_sieci=typ_sieci, save=save , run=run)
         print_errors(errors=errors, typ_sieci=typ_sieci, save=save , run=run)
+        print_hist(errors=errors, typ_sieci=typ_sieci, save=save , run=run)
 
     if logs == True:
         create_log(typ_sieci=typ_sieci, Y_hat=Y_hat, errors=errors, T=T, X=X, run=run)
